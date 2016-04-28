@@ -380,6 +380,16 @@
               <FileType>1</FileType>
               <FilePath>.\main.c</FilePath>
             </File>
+            <File>
+              <FileName>ADC_Thread.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\ADC_Thread.c</FilePath>
+            </File>
+            <File>
+              <FileName>main_thread.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\main_thread.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

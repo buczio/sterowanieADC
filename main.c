@@ -11,29 +11,43 @@
 #include "MKL25Z4.h"
 #include "Board_LED.h"											//board led support for testing purpose
 
-osMessageQId ADC0_queue;																		//define the message queues
+osMessageQId ADC0_queue;																		//define the message queues for ADCx threads
 osMessageQDef (ADC0_queue,0x1,uint32_t);							
 osEvent  result1;
 
-osMessageQId ADC1_queue;																		//define the message queues
+osMessageQId ADC1_queue;																		
 osMessageQDef (ADC1_queue,0x1,uint32_t);							
 osEvent  result2;
 
-int ADC0_Init (void);																			//ADC Initialization prototype
-extern int Init_ThreadADC0(void);													//ADC0 Conversion prototype
+osMessageQId ADC2_queue;																		
+osMessageQDef (ADC2_queue,0x1,uint32_t);							
+osEvent  result3;
+
+osMessageQId ADC3_queue;																		
+osMessageQDef (ADC3_queue,0x1,uint32_t);							
+osEvent  result4;
+
+int ADC0_Init (void);																			//ADC initialization prototype
+extern int Init_ThreadADC0(void);													//ADC threads
 extern int Init_ThreadADC1(void);	
-extern int Init_main_Thread(void);												//main thread prototype
+extern int Init_ThreadADC2(void);
+extern int Init_ThreadADC3(void);
+extern int Init_main_Thread(void);												//'main' thread 
 
 
 
 int main (void) {
 	osKernelInitialize ();  																// initialize CMSIS-RTOS
-	LED_Initialize();
+	LED_Initialize();																				// LED initialize
 	ADC0_queue=osMessageCreate(osMessageQ(ADC0_queue),NULL);// initialize queue for adc0
-	ADC1_queue=osMessageCreate(osMessageQ(ADC1_queue),NULL);// initialize queue for adc0
-	if(ADC0_Init()!=0)while(1){;};													//initialize ADC0
+	ADC1_queue=osMessageCreate(osMessageQ(ADC1_queue),NULL);// initialize queue for adc1
+	ADC2_queue=osMessageCreate(osMessageQ(ADC2_queue),NULL);// initialize queue for adc2
+	ADC3_queue=osMessageCreate(osMessageQ(ADC3_queue),NULL);// initialize queue for adc2
+	if(ADC0_Init()!=0)while(1){;/*error*/};									//initialize ADC
 	if(Init_ThreadADC0()!=0)while(1){;/*error*/};					  //initialize ADC0 Thread
-	if(Init_ThreadADC1()!=0)while(1){;/*error*/};					  //initialize ADC0 Thread
+	if(Init_ThreadADC1()!=0)while(1){;/*error*/};					  //initialize ADC1 Thread
+	if(Init_ThreadADC2()!=0)while(1){;/*error*/};					  //initialize ADC2 Thread
+	if(Init_ThreadADC3()!=0)while(1){;/*error*/};					  //initialize ADC2 Thread
 	if(Init_main_Thread()!=0)while(1){;/*error*/};					//initialize 'main' Thread
 		
 		osKernelStart ();                         						// start thread execution 

@@ -27,7 +27,7 @@ void Thread_ADC2 (void const *argument) {
        while ((ADC0_SC2 & 0x80));						//wait for conversion
        while (!(ADC0_SC1A & 0x80));
        osMessagePut(ADC2_queue,ADC0_RA,osWaitForever);	// use message queue to send result
-			 osDelay(2);																			//every 1 ms
+			 osDelay(10);																			//every 1 ms
 	}
 }
 

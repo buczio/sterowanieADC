@@ -34,9 +34,9 @@ int Init_main_Thread (void) {
 
 
 void main_Thread (void const *argument) {
-	uint32_t ADC1value;
-	uint32_t ADC2value;
-	uint32_t ADC3value;	
+	volatile uint32_t ADC1value;
+	volatile uint32_t ADC2value;
+	volatile uint32_t ADC3value;	
 	//uint32_t ADC4value;
 	uint32_t sum;
 	
@@ -55,7 +55,7 @@ sum=ADC3value+ADC2value+ADC1value;
 ADC1value=(25*ADC1value)/sum;
 ADC2value=(25*ADC2value)/sum;
 ADC3value=(25*ADC3value)/sum;
-	
+	sum=ADC3value+ADC2value+ADC1value;
 	LED_On(0);																		//RGB diode blinking
 osDelay(ADC1value);
 	LED_Off(0);
@@ -65,6 +65,7 @@ osDelay(ADC2value);
 	LED_On(2);
 osDelay(ADC3value);        
 	LED_Off(2);
+	osDelay(25-sum);
   }
 }
 

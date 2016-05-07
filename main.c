@@ -54,24 +54,44 @@ int main (void) {
 
 
 
+
 int ADC_Init(void)
 {
-//clock to adc0
+//volatile uint16_t calibration_variable =0;
+// Clock to adc0
 SIM->SCGC6 |= SIM_SCGC6_ADC0_MASK;
-//bus clock/2 & singled-ended 16bit mode & div by 4
-ADC0->CFG1 = ADC_CFG1_ADICLK(1) | ADC_CFG1_MODE(3) | ADC_CFG1_ADIV(2);
-//select channel A //& high speed mode
-ADC0->CFG2|=ADC_CFG2_MUXSEL(0) | ADC_CFG2_ADHSC_MASK;
-//hardware trigger & VREFH/VREFL
-ADC0->SC2 = ADC_SC2_REFSEL(0);
-//calibration and enable averaging
-ADC0->SC3|=ADC_SC3_AVGE_MASK| (0x1u);
-ADC0->SC3|=ADC_SC3_CAL_MASK;
+// ADC0 Configuration register 1
+ADC0->CFG1 = ADC_CFG1_ADICLK(0)  // 0-bus clock, 1- bus clock/2, 2-alternative, 3 - asynchronous
+| ADC_CFG1_MODE(3)			// 3- 16bit, 2-10bit, 1-12bit, 0 - 8bit (for single ended mode)
+| ADC_CFG1_ADLSMP(0)		// 0-short sample rate, 1 - long sample rate (lower power consumpt)
+| ADC_CFG1_ADIV(0)			// Clock divide, 0 - div1, 1- div2, 2 - div4, 3 div8
+| ADC_CFG1_ADLPC(0);		//0- normal, 1 -low power
+// ADC0 Configuration register 2	
+ADC0->CFG2 = ADC_CFG2_ADLSTS(0)		// time select for long sample rate (enabled in CFG1 reg), 0 - default
+| ADC_CFG2_ADHSC(1)			// 1 - high speed conversion, 0 - normal conversion
+| ADC_CFG2_ADACKEN(0)		// 1 - enable asynchrous clock output
+| ADC_CFG2_MUXSEL(0);		// 0 -  channel A, 1 - channel B
+	
+// ADC Status and control register 2
+ADC0->SC2 = ADC_SC2_REFSEL(0)			//voltage reference selection, 0 - default
+| ADC_SC2_DMAEN(0);								// DMA 1 - enabled, 0 - disabled
+// ew. compare function
+	
+// ADC Status and control register 2
+ADC0->SC3 = ADC_SC3_AVGE(0)					// 1 - hardware average enable, 0 - disable
+| ADC_SC3_AVGS(0)										// 0 - 4 samples, 1 - 8 samples, 3 - 32 samples
+| ADC_SC3_ADCO(0);									// continuous conversion 1 - enabled, 0 - disabled
+
+ADC0->SC3|=ADC_SC3_CAL_MASK;						// begin calibration
 while((ADC0->SC3&ADC_SC3_CAL_MASK)==ADC_SC3_CAL_MASK){
 	;	//wait until conversion complete
 }
+
 if((ADC0->SC3&ADC_SC3_CALF_MASK)==ADC_SC3_CALF_MASK){
 	return(-1);	//calibration failed
 }
-return(0);	//initialization complete
+//calibration_variable = (ADC0_CLP0+ADC0_CLP1+ADC0_CLP2+ADC0_CLP3+ADC0_CLP4+ADC0_CLPS)/2+((uint16_t)32768);
+
+//ADC0->PG = ADC_PG_PG(calibration_variable);
+return(0);	//calibration succesed
 }
